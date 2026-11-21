@@ -1,0 +1,23 @@
+# User-specified excluded files and folders
+GALAGOOSE_Presentation_Summary.pdf
+Space_shooter_source.zip
+UTF-8CPE222+Final+brief.pdf
+.agents/
+.agent/
+
+# Temporary build & simulation artifacts
+tmp/
+*.xilwvdat
+*.log
+*.jou
+*.pb
+*.dmp
+*.wdb
+.Xil/
+**/xsim.dir/
+**/vivado_build/.Xil/
+**/vivado_build/checkpoints/
+__pycache__/
+*.pyc
+
+GalaGoose_source/MTH234 Project Report Format.pdf

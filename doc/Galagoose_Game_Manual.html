@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>GALAGOOSE - Game Manual & System Specification</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+    @page {
+        size: A4;
+        margin: 10mm 10mm 10mm 10mm;
+    }
+
+    * {
+        box-sizing: border-box;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    body {
+        font-family: 'Sarabun', 'Segoe UI', Tahoma, sans-serif;
+        font-size: 12.5px;
+        line-height: 1.5;
+        color: #1e293b;
+        background: #ffffff;
+        margin: 0;
+        padding: 0;
+    }
+
+    h1, h2, h3, h4 {
+        font-family: 'Kanit', sans-serif;
+        color: #0f172a;
+        margin-top: 0;
+        margin-bottom: 6px;
+    }
+
+    .header-banner {
+        background: linear-gradient(135deg, #0b1120 0%, #1e1b4b 50%, #311042 100%);
+        color: #ffffff;
+        padding: 18px 24px;
+        border-radius: 10px;
+        margin-bottom: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        border: 1px solid #3730a3;
+    }
+
+    .header-title {
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        color: #facc15;
+        margin-bottom: 2px;
+        text-shadow: 0 2px 8px rgba(250, 204, 21, 0.4);
+    }
+
+    .header-subtitle {
+        font-size: 13.5px;
+        color: #cbd5e1;
+        font-weight: 400;
+    }
+
+    .header-meta {
+        margin-top: 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 11px;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 5px;
+        font-weight: 600;
+        font-size: 11px;
+        letter-spacing: 0.4px;
+    }
+
+    .badge-primary { background: #4338ca; color: #ffffff; }
+    .badge-gold { background: #b45309; color: #ffffff; }
+    .badge-cyan { background: #0891b2; color: #ffffff; }
+    .badge-green { background: #15803d; color: #ffffff; }
+    .badge-red { background: #b91c1c; color: #ffffff; }
+    .badge-purple { background: #7e22ce; color: #ffffff; }
+
+    .card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 12px;
+        page-break-inside: avoid;
+    }
+
+    .card-title {
+        font-size: 15.5px;
+        font-weight: 600;
+        color: #1e3a8a;
+        border-bottom: 2px solid #cbd5e1;
+        padding-bottom: 4px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 8px 0;
+        font-size: 11.5px;
+    }
+
+    th, td {
+        border: 1px solid #cbd5e1;
+        padding: 5px 8px;
+        text-align: left;
+        vertical-align: middle;
+    }
+
+    th {
+        background: #f1f5f9;
+        color: #0f172a;
+        font-weight: 600;
+        font-family: 'Kanit', sans-serif;
+    }
+
+    tr:nth-child(even) { background: #ffffff; }
+    tr:nth-child(odd) { background: #f8fafc; }
+
+    .key {
+        display: inline-block;
+        background: #0f172a;
+        color: #38bdf8;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700;
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-size: 10.5px;
+        border: 1px solid #334155;
+    }
+
+    .sw {
+        display: inline-block;
+        background: #374151;
+        color: #facc15;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700;
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-size: 10.5px;
+    }
+
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .grid-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+    }
+
+    .grid-4 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: 8px;
+    }
+
+    .callout {
+        border-left: 4px solid #3b82f6;
+        background: #eff6ff;
+        padding: 8px 12px;
+        border-radius: 0 6px 6px 0;
+        margin: 8px 0;
+        font-size: 11.5px;
+    }
+
+    .callout-warning {
+        border-left-color: #ef4444;
+        background: #fef2f2;
+    }
+
+    .callout-success {
+        border-left-color: #10b981;
+        background: #ecfdf5;
+    }
+
+    .callout-purple {
+        border-left-color: #8b5cf6;
+        background: #f5f3ff;
+    }
+
+    .page-break {
+        page-break-before: always;
+    }
+
+    .evolution-box {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 8px;
+        text-align: center;
+    }
+
+    .evo-title {
+        font-family: 'Kanit', sans-serif;
+        font-weight: 600;
+        font-size: 12.5px;
+        margin-bottom: 2px;
+    }
+
+    .shield-ui-box {
+        background: #090d16;
+        border: 1px solid #0284c7;
+        border-radius: 8px;
+        padding: 10px 14px;
+        color: #e0f2fe;
+        margin: 8px 0;
+    }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: OVERVIEW, GAME RULES & GAME STATES -->
+<div class="header-banner">
+    <div class="header-title">GALAGOOSE: FPGA SPACE SHOOTER</div>
+    <div class="header-subtitle">เอกสารสรุปกฎเกณฑ์ สถาปัตยกรรมระบบควบคุมฮาร์ดแวร์ กลไกฟังก์ชัน และคู่มือการเล่นฉบับสมบูรณ์</div>
+    <div class="header-meta">
+        <span class="badge badge-primary">Target Board: Digilent Nexys A7-100T (XC7A100T-CSG324-1)</span>
+        <span class="badge badge-gold">Video Output: 640x480 @ 60Hz VGA (12-bit RGB444)</span>
+        <span class="badge badge-cyan">Audio: 3-Ch PWM Chiptune Synth</span>
+        <span class="badge badge-green">Storage: Standalone Boot via Quad-SPI Flash</span>
+        <span class="badge badge-purple">Version: 2.5 Final Master Release</span>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title">1. กฎการเล่นและเงื่อนไขสถานะเกม (Game Rules & State Conditions)</div>
+    <p><b>GALAGOOSE</b> คือเกมยานยิงอวกาศสไตล์ Galaga Arcade ที่ออกแบบและประมวลผลด้วยลอจิกฮาร์ดแวร์ SystemVerilog/Verilog 100% บน FPGA Artix-7 โดยปราศจากการใช้ CPU หรือระบบปฏิบัติการซอฟต์แวร์ ผู้เล่นจะบังคับยาน "ห่านอวกาศ" ต่อกรกับกองทัพเอเลี่ยนและเผชิญหน้ากับ Last Boss ในด่านสุดท้าย</p>
+    
+    <div class="grid-2">
+        <div>
+            <h4 style="color: #1e3a8a;">กฎพื้นฐานการเล่น (Core Rules)</h4>
+            <ul>
+                <li><b>พลังชีวิตเริ่มต้น (Player Lives):</b> เริ่มเกมด้วย <b>3 ชีวิต</b> (แสดงเป็นไอคอนหัวใจบน HUD ด้านบนขวา) เมื่อถูกกระสุนหรือชนศัตรู จะเสีย 1 ชีวิตและเข้าสู่สถานะอมตะชั่วขณะ (Invulnerability) กะพริบ 1.5 วินาที</li>
+                <li><b>ขอบเขตสนามรบ (Playfield Boundaries):</b> ยานห่านเคลื่อนที่ได้อย่างอิสระ 4 ทิศทางภายในพิกัด <code>X: 16–592</code> และ <code>Y: 72–440</code> (ความละเอียดจอรวม 640x480)</li>
+                <li><b>การทำคะแนน (Scoring):</b>
+                    <ul>
+                        <li>ลูกกระจ๊อก Wave 1 = +100 คะแนน / Wave 2 = +150 / Wave 3 = +200</li>
+                        <li>กำจัด Last Boss (Wave 4) = <b>+2,000 คะแนน</b></li>
+                        <li>เก็บลูกแก้ววิวัฒนาการ = +50 คะแนน / เก็บหัวใจฟื้นเลือด = +500 คะแนน</li>
+                        <li>คะแนนสูงสุด (High Score) บันทึกแบบ Decimal BCD และคงอยู่ตลอดการเปิดเครื่อง</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div>
+            <h4 style="color: #1e3a8a;">เครื่องสถานะหลักของเกม (FSM Game States)</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">Game State</th>
+                        <th style="width: 70%;">เงื่อนไขและพฤติกรรมของระบบ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><b>GS_TITLE (0)</b></td>
+                        <td>หน้าจอเริ่มเกม แสดงโลโก้ Galagoose พร้อมเพลงเปิดตัว เลือกโหมด Normal/Hard ได้</td>
+                    </tr>
+                    <tr>
+                        <td><b>GS_WAVE_INTRO (1)</b></td>
+                        <td>แอนิเมชันเปิดด่าน แสดงข้อความ "WAVE X" หน่วงเวลา 2.5 วินาทีให้เตรียมตัว</td>
+                    </tr>
+                    <tr>
+                        <td><b>GS_PLAY (2)</b></td>
+                        <td>สถานะเล่นเกมจริง ทำการอัปเดตตำแหน่ง ตรวจจับการชน ยิงกระสุน และไอเทม</td>
+                    </tr>
+                    <tr>
+                        <td><b>GS_PAUSED (3)</b></td>
+                        <td>หยุดเกมชั่วคราวเมื่อสับ <span class="sw">SW[15]=ON</span> ยานและกระสุนทั้งหมดจะหยุดนิ่ง</td>
+                    </tr>
+                    <tr>
+                        <td><b>GS_VICTORY (4)</b></td>
+                        <td>พิชิต Last Boss ใน Wave 4 สำเร็จ แสดงข้อความ VICTORY พร้อมเพลงฉลองชัยชนะ</td>
+                    </tr>
+                    <tr>
+                        <td><b>GS_GAMEOVER (5)</b></td>
+                        <td>ชีวิตหมดเหลือ 0 หรือสับสวิตช์ยอมแพ้ <span class="sw">SW[14]=ON</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title">2. ระบบวิวัฒนาการห่าน 3 ขั้น (Goose Evolution Mechanics)</div>
+    <div class="grid-3">
+        <div class="evolution-box" style="border-top: 4px solid #64748b;">
+            <div class="evo-title" style="color: #334155;">ร่าง 1: ห่านขาว (White Goose)</div>
+            <div style="font-size: 11px; color: #64748b; margin-bottom: 4px;">[Form 0 - ร่างเริ่มต้น]</div>
+            <p style="margin: 0; font-size: 11.5px;">ยิงกระสุนปืนคู่ธรรมดา 1 ชุด/ครั้ง<br>Cooldown: <b>12 เฟรม</b> (~5 นัด/วินาที)<br><i>เป็นร่างถาวร ไม่จำกัดเวลา</i></p>
+        </div>
+        <div class="evolution-box" style="border-top: 4px solid #0284c7;">
+            <div class="evo-title" style="color: #0284c7;">ร่าง 2: ห่านฟ้า (Blue Goose)</div>
+            <div style="font-size: 11px; color: #0284c7; margin-bottom: 4px;">[Form 1 - หอกพลาสมาคู่]</div>
+            <p style="margin: 0; font-size: 11.5px;">ยิงหอกพลาสมาคู่สีฟ้า ดาเมจสูงขึ้น<br>Cooldown: <b>8 เฟรม</b> (~7.5 นัด/วินาที)<br><i>จำกัดเวลา: <b>9.0 วินาที</b></i></p>
+        </div>
+        <div class="evolution-box" style="border-top: 4px solid #d946ef;">
+            <div class="evo-title" style="color: #a21caf;">ร่าง 3: ห่านรุ้ง (Rainbow Goose)</div>
+            <div style="font-size: 11px; color: #a21caf; margin-bottom: 4px;">[Form 2 - อัลติเมต 8 ทิศทาง]</div>
+            <p style="margin: 0; font-size: 11.5px;">ยิงกระจายรอบทิศ 8 แฉก 180° ด้านหน้า<br>Cooldown: <b>5 เฟรม</b> (~12 นัด/วินาที)<br><i>จำกัดเวลา: <b>9.0 วินาที</b></i></p>
+        </div>
+    </div>
+    <div class="callout callout-success" style="margin-top: 8px;">
+        <b>กลไกตัวนับเวลาถอยหลัง 9 วินาที (Evolution Countdown):</b> ขณะอยู่ในร่างห่านฟ้าหรือห่านรุ้ง บนแถบ HUD จะแสดงเวลานับถอยหลัง <code>EVO TIME: 9S...1S</code> หากหมดเวลาจะลดระดับลงสู่ร่างก่อนหน้า แต่หากเก็บลูกแก้วพัฒนาขั้นถัดไปได้ทัน ตัวจับเวลาจะถูกรีเซ็ตเต็ม 9 วินาทีใหม่ทันที
+    </div>
+</div>
+
+<!-- PAGE 2: VOICE SHIELD & HARDWARE I/O -->
+<div class="page-break"></div>
+
+<div class="card">
+    <div class="card-title">3. สกิลบาเรียพลังงานเสียงคุ้มกัน (Voice-Activated Defensive Shield)</div>
+    <p>ฟังก์ชันพิเศษที่ออกแบบสำหรับใช้รับมือกับ <b>Last Boss (Wave 4)</b> โดยเฉพาะ เพื่อช่วยให้ผู้เล่นสามารถเอาชีวิตรอดจากห่ากระสุนสุดโหด:</p>
+    
+    <div class="shield-ui-box">
+        <h4 style="color: #38bdf8; margin-bottom: 4px;">การทำงานของระบบบาเรียป้องกันตัวห่าน (Pure Defensive Barrier)</h4>
+        <ul style="margin: 0; padding-left: 18px; font-size: 12px;">
+            <li><b>เงื่อนไขการใช้งาน:</b> ใช้ได้เฉพาะในด่าน <b>Last Boss (Wave 4)</b> ขณะที่บอส AJV กำลังมีชีวิตอยู่ในฉากเท่านั้น</li>
+            <li><b>วิธีการสั่งใช้งาน:</b> ตะโกนหรือออกเสียงดังใส่ <b>ไมโครโฟนออนบอร์ด (ADMP421)</b> ให้ระดับพลังงานเสียงพุ่งแตะหรือข้ามขีดมาร์กเกอร์สีแดง</li>
+            <li><b>ระยะเวลาทำงานของบาเรีย:</b> กางวงแหวนพลังงานคุ้มกันรอบตัวห่านเป็นเวลา <b>3.0 วินาทีเต็ม (180 เฟรม)</b></li>
+            <li><b>คุณสมบัติการป้องกัน 100%:</b>
+                <ul>
+                    <li>ดูดซับและทำลายกระสุนของศัตรู/บอสทั้งหมดที่พุ่งเข้าใกล้ในรัศมี 32 พิกเซล พร้อมเสียงสะท้อนปิ๊ง (Deflection SFX)</li>
+                    <li>ป้องกันดาเมจจากการชนตัวศัตรู และป้องกันการชนตัวบอส (ไม่เสียพลังชีวิตเลยขณะบาเรียทำงาน)</li>
+                    <li><b>ไม่ทำดาเมจใส่บอส:</b> กระสุนที่ดูดซับจะไม่สะท้อนไปสร้างความเสียหายแก่บอส ทำให้เกมคงความท้าทายในการโจมตีด้วยตนเอง</li>
+                </ul>
+            </li>
+            <li><b>ระบบคูลดาวน์ใหม่ (Sequential Post-Barrier Cooldown):</b>
+                <ul>
+                    <li>ตัวนับคูลดาวน์จะเริ่มทำงาน <b>หลังจากบาเรีย 3 วินาทีหมดอายุลงแล้วเท่านั้น</b></li>
+                    <li>ระยะเวลาคูลดาวน์: <b>8.0 วินาทีเต็ม (480 เฟรม)</b> รวมรอบการใช้งานทั้งหมด $3.0 + 8.0 = 11.0$ วินาที</li>
+                    <li>ระหว่างคูลดาวน์ ผู้เล่นจะไม่สามารถเปิดบาเรียซ้ำได้ และต้องหลบหลีกการโจมตีจนกว่าหลอดจะรีชาร์จเต็ม 100%</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <h4 style="color: #1e3a8a; margin-top: 10px;">ส่วนแสดงผลกราฟิก HUD บนหน้าจอ (Graphical Voice HUD Widget)</h4>
+    <p style="margin-bottom: 6px;">แสดงผลตรงกลางจอด้านบน (พิกัด $X=202..420, Y=35..47$) ใต้แถบเลือดบอส โดยไม่มีการใช้ข้อความ Text บดบัง:</p>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 25%;">องค์ประกอบวิดเจ็ต</th>
+                <th style="width: 35%;">สถานะพร้อมใช้ (Ready)</th>
+                <th style="width: 40%;">สถานะกำลังทำงาน (Active) / คูลดาวน์ (Cooldown)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><b>Shield Icon<br>(ไอคอนโล่ 12x12 px)</b></td>
+                <td>ขอบโล่สีเงิน ตรากากบาทสีขาว ตัวโล่สีเขียวสะท้อนแสง สว่างชัดเจน</td>
+                <td><b>Active:</b> เรืองแสงสีฟ้า Cyan กะพริบเป็นประกาย<br><b>Cooldown:</b> เปลี่ยนเป็นสีเทาเข้มสลัว (Inactive)</td>
+            </tr>
+            <tr>
+                <td><b>Voice Meter<br>(หลอดระดับเสียง 200 px)</b></td>
+                <td>แสดงแถบระดับเสียงตามเวลาจริง (Real-time Gauge) ไล่เฉดสี: เขียว $ightarrow$ มะนาว $ightarrow$ เหลือง $ightarrow$ แดง</td>
+                <td><b>Active:</b> แปลงเป็นลายคลื่นพลาสมาสีฟ้า-ขาววิ่งกะพริบ<br><b>Cooldown:</b> แสดงแถบความคืบหน้ารีชาร์จ (Recharge Bar) เติมจากซ้ายไปขวาตลอด 8 วินาที</td>
+            </tr>
+            <tr>
+                <td><b>Threshold Marker<br>(ขีดมาร์กเกอร์บอกระดับ)</b></td>
+                <td>ขีดเส้นสีแดงนีออนแนวตั้งพร้อมหัวลูกศรชี้บนและล่าง แสดงตำแหน่งระดับเสียงที่ต้องตะโกนให้ถึง</td>
+                <td>เมื่อผู้เล่นส่งเสียงดังถึงขีดนี้ <b>มาร์กเกอร์จะกะพริบแสงสีขาว-ฟ้าทันที</b> เป็นสัญญาณยืนยันการเปิดใช้งานบาเรีย</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <div class="card-title">4. การเชื่อมต่อและควบคุมด้วยส่วนประกอบบนบอร์ด Nexys A7 (Hardware I/O Specification)</div>
+    
+    <div class="grid-2">
+        <div>
+            <h4 style="color: #1e3a8a;">ปุ่มกด (Push Buttons) & การควบคุม</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">ปุ่ม / เซนเซอร์</th>
+                        <th style="width: 70%;">การทำงานในระบบเกม</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="key">BTNC</span> (Center)</td>
+                        <td>ยิงกระสุน (Fire) / ยืนยันเริ่มเกมในหน้าเมนู Title</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">BTNU</span> (Up)</td>
+                        <td>บังคับยานห่านบินขึ้นด้านบน ($Y-$)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">BTND</span> (Down)</td>
+                        <td>บังคับยานห่านบินลงด้านล่าง ($Y+$)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">BTNL</span> / <span class="key">BTNR</span></td>
+                        <td>บินไปทางซ้าย ($X-$) / บินไปทางขวา ($X+$) / เลื่อนเลือกเมนู</td>
+                    </tr>
+                    <tr>
+                        <td><span class="key">CPU_RESETN</span></td>
+                        <td>ปุ่มสีแดง: ฮาร์ดแวร์รีเซ็ตระบบเกมทั้งหมดกลับสู่เริ่มต้น</td>
+                    </tr>
+                    <tr>
+                        <td><b>ADXL362 Tilt</b></td>
+                        <td>เซนเซอร์เอียงบอร์ด 3 แกน แปลงมุมเอียงเป็นความเร็วการบิน</td>
+                    </tr>
+                    <tr>
+                        <td><b>PS/2 Keyboard</b></td>
+                        <td>รองรับคีย์บอร์ด <span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span> หรือลูกศร, <span class="key">Space</span> ยิง</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <h4 style="color: #1e3a8a;">การปรับแต่งด้วยสวิตช์สไลด์ (Slide Switches SW[15:0])</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">สวิตช์</th>
+                        <th style="width: 70%;">ฟังก์ชันการทำงาน</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="sw">SW[0]</span></td>
+                        <td><b>Audio Mute:</b> ON = ปิดเสียงลำโพงทั้งหมดเงียบสนิท</td>
+                    </tr>
+                    <tr>
+                        <td><span class="sw">SW[1]</span></td>
+                        <td><b>Autofire:</b> ON = ยิงกระสุนรัวอัตโนมัติ ไม่ต้องกดย้ำ</td>
+                    </tr>
+                    <tr>
+                        <td><span class="sw">SW[2]</span></td>
+                        <td><b>Tilt Control:</b> ON = เปิดระบบบังคับด้วยการเอียงบอร์ด</td>
+                    </tr>
+                    <tr>
+                        <td><span class="sw">SW[3]</span></td>
+                        <td><b>Hard Mode Override:</b> ON = บังคับโหมด Hard ทันที</td>
+                    </tr>
+                    <tr>
+                        <td><span class="sw">SW[4]</span></td>
+                        <td><b>Debug Mode:</b> ON = แสดง Hitbox สี่เหลี่ยม และโค้ดคีย์บอร์ด</td>
+                    </tr>
+                    <tr>
+                        <td><span class="sw">SW[5]</span></td>
+                        <td><b>Keyboard Priority:</b> ON = ตัดปุ่มบนบอร์ด ใช้คีย์บอร์ดล้วน</td>
+                    </tr>
+                    <tr>
+                        <td><span class="sw">SW[6]</span></td>
+                        <td><b>Key Swap:</b> สลับปุ่มควบคุมระหว่างลูกศรกับ WASD</td>
+                    </tr>
+                    <tr>
+                        <td><span class="sw">SW[13:12]</span></td>
+                        <td><b>Mic Sensitivity:</b> ปรับระดับความไวไมค์ Voice Barrier<br>
+                        <code>00</code>: Normal (85) / <code>01</code>: Sensitive (65)<br>
+                        <code>10</code>: Louder (105) / <code>11</code>: Shouting (130)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="sw">SW[14]</span></td>
+                        <td><b>Give Up / Surrender:</b> ON = ยอมแพ้และสิ้นสุดเกมทันที</td>
+                    </tr>
+                    <tr>
+                        <td><span class="sw">SW[15]</span></td>
+                        <td><b>Pause Game:</b> ON = หยุดเกมชั่วคราว</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <h4 style="color: #1e3a8a; margin-top: 8px;">การแสดงผลอุปกรณ์เอาต์พุตบนบอร์ด Nexys A7</h4>
+    <ul>
+        <li><b>16-LED Bar (LED[15:0]):</b> ใน Wave 1–3 แสดงไฟติดตามตำแหน่งศัตรู 16 ตัว / ใน Wave 4 แปลงเป็น <b>Boss HP Bar 16 หลอด</b> ดับลงตามเลือดบอส</li>
+        <li><b>RGB LEDs (LED16, LED17):</b> แสดงสีตามร่างวิวัฒนาการห่าน (ขาว/ฟ้า/รุ้ง) และกะพริบเตือนสีแดงเมื่อได้รับความเสียหาย</li>
+        <li><b>7-Segment Display (8 หลัก):</b> แสดงคะแนนสะสม 6 หลัก (Decimal BCD) หรือแสดงรหัส Scan Code ในโหมด Debug</li>
+        <li><b>VGA Video Port (RGB444):</b> ส่งสัญญาณ 640x480 @ 60Hz 12-bit พร้อมระบบสั่นจอ (Screen Shake) และ Parallax Starfield 3 ชั้น</li>
+        <li><b>Audio PWM:</b> สังเคราะห์เสียง Chiptune ยุค 8-bit ขับเสียงดนตรีประกอบฉากและเสียงเอฟเฟกต์ SFX ผ่านช่องต่อแจ็ค 3.5 มม.</li>
+    </ul>
+</div>
+
+<!-- PAGE 3: ITEM DROPS, NORMAL VS HARD, ATTACK PATTERNS -->
+<div class="page-break"></div>
+
+<div class="card">
+    <div class="card-title">5. กฎและจังหวะเวลาการปล่อยไอเทม (Item Drop Rules & Timing)</div>
+    <div class="grid-2">
+        <div>
+            <h4 style="color: #0369a1;">ก. กฎในด่านปกติ (Wave 1 – 3)</h4>
+            <ul>
+                <li><b>ดรอปตามลำดับขั้นบันไดห่านเคร่งครัด:</b>
+                    <ul>
+                        <li>ห่านขาว (Form 0) $ightarrow$ ดรอป <b>ลูกแก้วฟ้า (Type 0)</b></li>
+                        <li>ห่านฟ้า (Form 1) $ightarrow$ ดรอป <b>ลูกแก้วรุ้ง (Type 1)</b></li>
+                        <li>ห่านรุ้ง (Form 2) $ightarrow$ ดรอป <b>หัวใจฟื้นเลือด (Type 2)</b></li>
+                    </ul>
+                </li>
+                <li><b>การันตีการดรอปต้นเกม:</b>
+                    <ul>
+                        <li>ศัตรูที่ถูกยิงตกตัวที่ 2 ใน Wave 1 ปล่อยลูกแก้วฟ้าแน่นอน</li>
+                        <li>ศัตรูที่ถูกยิงตกตัวที่ 2 ใน Wave 2 ปล่อยลูกแก้วรุ้งแน่นอน</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div>
+            <h4 style="color: #b91c1c;">ข. กฎในด่าน Last Boss (Wave 4)</h4>
+            <ul>
+                <li><b>ใช้กฎขั้นบันไดเดียวกัน (ไม่มีการข้ามขั้น):</b> ห่านขาวต้องผ่านห่านฟ้าก่อน จึงจะมีสิทธิ์พัฒนากลายเป็นห่านรุ้งได้</li>
+                <li><b>การันตีปล่อยลูกแก้วรุ้งทันใน 9 วินาที:</b> เมื่อเก็บลูกแก้วฟ้ากลายร่าง บอสจะรีเซ็ตเวลารอปล่อยลูกแก้วรุ้งเหลือเพียง <b>2.5 - 3.0 วินาที</b> ทำให้ผู้เล่นมีโอกาสพัฒนาร่างสู่ห่านรุ้งได้อย่างแน่นอนก่อนหมดเวลา</li>
+                <li><b>ความถี่การดรอปในด่านบอส:</b>
+                    <ul>
+                        <li>ห่านขาว: ปล่อยลูกแก้วฟ้าทุก 4.0 วินาที</li>
+                        <li>ห่านรุ้ง: ปล่อยหัวใจฟื้นเลือดทุก 5.0 วินาที</li>
+                        <li>หากพลาดการเก็บลูกแก้วรุ้ง บอสจะดรอปซ้ำทุก 3.0 วินาที</li>
+                    </ul>
+                </li>
+                <li><b>Milestone Drops:</b> ปล่อยหัวใจฉุกเฉินทันทีเมื่อเลือดบอสลดลงแตะ 50% และ 25%</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title">6. ตารางเปรียบเทียบเชิงลึก: โหมด Normal vs Hard</div>
+    <p>ผู้เล่นสามารถเลือกโหมดความยากได้ที่หน้า Title Screen หรือสับสวิตช์ <span class="sw">SW[3] = ON</span> เพื่อบังคับเป็นโหมด Hard:</p>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 26%;">พารามิเตอร์ของระบบ</th>
+                <th style="width: 24%;">โหมดปกติ (NORMAL MODE)</th>
+                <th style="width: 24%;">โหมดท้าทาย (HARD MODE)</th>
+                <th style="width: 26%;">ความแตกต่างและผลกระทบต่อผู้เล่น</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><b>Boss Max HP (พลังชีวิตบอส)</b></td>
+                <td><b style="color: #0284c7;">90 หน่วย</b></td>
+                <td><b style="color: #b91c1c;">120 หน่วย (+33%)</b></td>
+                <td>การต่อสู้ยาวนานขึ้น ต้องรักษาพลังห่านรุ้งเพื่อทำดาเมจสูงสุด</td>
+            </tr>
+            <tr>
+                <td><b>ความเร็วการเคลื่อนที่ของบอส</b></td>
+                <td>3 พิกเซล / เฟรม</td>
+                <td><b>4 พิกเซล / เฟรม (+33%)</b></td>
+                <td>บอสบินโฉบซ้ายขวารวดเร็วขึ้นอย่างชัดเจน เล็งยิงได้ยากขึ้น</td>
+            </tr>
+            <tr>
+                <td><b>การหักเลี้ยวหลอกล่อ (Feint Weave)</b></td>
+                <td>สุ่มเลี้ยวเมื่อ LFSR == 9'h155 (ความถี่ต่ำ)</td>
+                <td>สุ่มเลี้ยวเมื่อ LFSR == 8'hA5 (ถี่ขึ้น 2 เท่า)</td>
+                <td>ทิศทางของบอสคาดเดายาก มีจังหวะเปลี่ยนทิศกะทันหันบ่อยครั้ง</td>
+            </tr>
+            <tr>
+                <td><b>ความถี่กระสุนบอส Phase 1 (ajv)</b></td>
+                <td>หน่วงเวลา 60 เฟรม (1.00 วินาที/ชุด)</td>
+                <td>หน่วงเวลา <b>45 เฟรม (0.75 วินาที/ชุด)</b></td>
+                <td>ในเฟสแรก กระสุนบอสสาดถี่ขึ้น 25%</td>
+            </tr>
+            <tr>
+                <td><b>ความถี่กระสุนบอส Phase 2 (ajv2)</b></td>
+                <td>หน่วงเวลา 18 เฟรม (0.30 วินาที/ชุด)</td>
+                <td>หน่วงเวลา <b>14 เฟรม (0.23 วินาที/ชุด)</b></td>
+                <td>เข้าสู่สภาวะห่ากระสุน (Bullet Hell) รัวเร็วและหนาแน่นสูงสุด</td>
+            </tr>
+            <tr>
+                <td><b>จำนวนกระสุนบอสต่อชุด (Salvo)</b></td>
+                <td>Phase 1: 4 นัด / Phase 2: 7 นัด</td>
+                <td>Phase 1: <b>5 นัด</b> / Phase 2: <b>8 นัด</b></td>
+                <td>องศากระจายของกระสุนกว้างขึ้น หลบหลีกในที่แคบยากขึ้นมาก</td>
+            </tr>
+            <tr>
+                <td><b>สเกล LED Boss HP Gauge</b></td>
+                <td>6 HP ต่อ 1 หลอด LED</td>
+                <td>7.5 HP ต่อ 1 หลอด LED</td>
+                <td>ระบบคำนวณและเกลี่ยลงหลอด LED 16 ดวงบนบอร์ดอย่างแม่นยำ</td>
+            </tr>
+            <tr>
+                <td><b>ความเร็วลูกกระจ๊อก Wave 1–3</b></td>
+                <td>ความเร็วโฉบและอัตราการยิงปกติ</td>
+                <td>เพิ่มความเร็วโฉบและกระสุนเร็วขึ้น</td>
+                <td>สร้างความตื่นเต้นและฝึกฝนตั้งแต่ต้นเกม</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <div class="card-title">7. รูปแบบการโจมตีและพฤติกรรมของศัตรูในแต่ละด่าน (Attack Patterns)</div>
+    
+    <div class="grid-2">
+        <div>
+            <h4 style="color: #1e3a8a;">ก. พฤติกรรมของลูกกระจ๊อก (Minion FSM Patterns)</h4>
+            <ul>
+                <li><b>Mode 0 (Entry):</b> บินโค้งเข้าสู่หน้าจอจากด้านบนเพื่อเข้าประจำตำแหน่ง</li>
+                <li><b>Mode 1 (Formation Sway):</b> จัดขบวนปีกนกด้านบน บินส่ายไปมาซ้ายขวาแบบกลุ่ม พร้อมยิงกระสุนเล็งต่ำเป็นระยะ</li>
+                <li><b>Mode 2 (Dive Bombing):</b> บินแยกตัวออกจากขบวน โฉบดิ่งลงมาหายานห่านด้วยความเร็วสูงพร้อมยิงกระสุนดักทาง</li>
+                <li><b>Mode 3 (Return):</b> เมื่อบินทะลุขอบล่าง จะวนโค้งกลับขึ้นไปจัดขบวนใหม่ที่ด้านบน</li>
+            </ul>
+        </div>
+        <div>
+            <h4 style="color: #b91c1c;">ข. Last Boss (AJV) 2 เฟสการต่อสู้</h4>
+            <ul>
+                <li><b>Phase 1: ร่างอาจารย์เจษฎาปกติ (HP > 50%):</b>
+                    <ul>
+                        <li>ใช้รูปสไปรต์ <code>ajv</code> หน้าปกติ ขอบคมชัดเต็มรูป</li>
+                        <li>บินเคลื่อนไหวแบบ Sinusoidal Sway นุ่มนวล ยิงกระสุนเล็งเป้าเดี่ยวและคู่</li>
+                    </ul>
+                </li>
+                <li><b>Phase 2: ร่างคลั่ง Enraged AJV2 (HP $\le$ 50%):</b>
+                    <ul>
+                        <li>สลับใช้รูปสไปรต์ <code>ajv2</code> ตาเลเซอร์สีแดง ดุดัน คมชัดไม่มีพื้นหลัง</li>
+                        <li>เคลื่อนที่โฉบลึกและรวดเร็ว สุ่มเลี้ยวหักมุมหลอกล่อ (Feint)</li>
+                        <li>ยิงกระสุนเกลียวกระจายรอบทิศ (Radial Salvos 7–8 ทิศทาง) บีบให้ผู้เล่นต้องใช้ <b>"บาเรียเสียง"</b> ในจังหวะสำคัญเพื่อเอาชีวิตรอด</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="callout callout-purple" style="text-align: center; font-size: 12px; margin-top: 10px;">
+    <b>พร้อมเล่นทันทีแบบ Standalone Plug & Play:</b> ข้อมูลเกมทั้งหมดได้รับการโปรแกรมลงหน่วยความจำ Quad-SPI Flash ของบอร์ด Nexys A7 เรียบร้อยแล้ว เพียงเชื่อมต่อสาย Micro-USB (ไฟเลี้ยง) และสาย VGA เข้ากับจอภาพ เปิดสวิตช์เปิดเครื่อง เกมจะบูตพร้อมเล่นบนหน้าจอทันทีโดยไม่ต้องเปิดโปรแกรมคอมพิวเตอร์ใดๆ!
+</div>
+
+</body>
+</html>

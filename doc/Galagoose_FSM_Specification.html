@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Galagoose FPGA - Finite State Machine (FSM) Specification</title>
+<style>
+  @page {
+    size: A4 portrait;
+    margin: 14mm 14mm 14mm 14mm;
+  }
+  @page :first {
+    margin-top: 10mm;
+  }
+  body {
+    font-family: 'Segoe UI', 'Sarabun', 'Leelawadee UI', Tahoma, sans-serif;
+    color: #1e293b;
+    background: #ffffff;
+    line-height: 1.5;
+    font-size: 10.5pt;
+    margin: 0;
+    padding: 0;
+  }
+  .header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%);
+    color: #ffffff;
+    padding: 22px 26px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+  }
+  .header h1 {
+    margin: 0 0 6px 0;
+    font-size: 20pt;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #f8fafc;
+  }
+  .header .subtitle {
+    font-size: 11pt;
+    color: #38bdf8;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .header .meta {
+    font-size: 8.5pt;
+    color: #94a3b8;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 7.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  .badge-blue { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+  .badge-purple { background: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+  .badge-green { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+  .badge-amber { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+  .badge-red { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+  .badge-dark { background: #334155; color: #f8fafc; }
+
+  h2 {
+    color: #0f172a;
+    font-size: 13pt;
+    font-weight: 700;
+    border-left: 5px solid #2563eb;
+    padding-left: 10px;
+    margin-top: 22px;
+    margin-bottom: 10px;
+  }
+  h3 {
+    color: #1e3a8a;
+    font-size: 11pt;
+    font-weight: 700;
+    margin-top: 14px;
+    margin-bottom: 6px;
+  }
+  p {
+    margin: 6px 0;
+    text-align: justify;
+  }
+  .card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+  }
+  .diagram-container {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    margin: 12px 0 16px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .diagram-title {
+    font-size: 9pt;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 14px 0;
+    font-size: 9pt;
+  }
+  th, td {
+    padding: 6px 10px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  th {
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 700;
+    border-top: 1px solid #cbd5e1;
+  }
+  tr:nth-child(even) td {
+    background: #fafafa;
+  }
+  .page-break {
+    page-break-before: always;
+  }
+  .note-box {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 9pt;
+    color: #1e40af;
+    margin: 8px 0;
+  }
+  .warn-box {
+    background: #fffbeb;
+    border-left: 4px solid #f59e0b;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 9pt;
+    color: #92400e;
+    margin: 8px 0;
+  }
+  ul, ol {
+    margin: 4px 0 8px 0;
+    padding-left: 20px;
+  }
+  li {
+    margin-bottom: 3px;
+  }
+  code {
+    font-family: 'Consolas', monospace;
+    background: #f1f5f9;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 8.5pt;
+    color: #0f172a;
+    border: 1px solid #e2e8f0;
+  }
+</style>
+</head>
+<body>
+
+<!-- Page 1: Header + Master Game State FSM -->
+<div class="header">
+  <div class="subtitle">HARDWARE ARCHITECTURE & FINITE STATE MACHINE (FSM) SPECIFICATION</div>
+  <h1>Galagoose: Space Shooter FPGA Edition</h1>
+  <div class="meta">
+    <b>Target Platform:</b> Digilent Nexys A7-100T (Xilinx Artix-7 XC7A100T-1CSG324C) &nbsp;|&nbsp; 
+    <b>Clock Domain:</b> 25 MHz VGA Pixel Clock &nbsp;|&nbsp; 
+    <b>Tick Rate:</b> 60 Hz VSync Pulse
+  </div>
+</div>
+
+<p>
+เอกสารนี้ระบุรายละเอียดโครงสร้างและแผนผัง <b>Finite State Machine (FSM)</b> ทั้งหมดที่ควบคุมกลไกการทำงานของเกม 
+<i>Galagoose</i> บนชิป FPGA ตั้งแต่ FSM ระดับบนสุด (Top-level Game Flow) ไปจนถึง Sub-FSM ของแต่ละฟีเจอร์สำคัญ 
+เช่น การพัฒนาร่างห่าน 3 ระดับ, สกิลบาเรียเสียงสะท้อนกระสุน, พฤติกรรมการบินของเอเลี่ยน, เฟสการต่อสู้ของบอส AJV, 
+ระบบรับประกันไอเทมดรอป, และไปป์ไลน์ประมวลผลสัญญาณเสียงไมโครโฟนดิจิทัล (PDM)
+</p>
+
+<h2>1. Master Game State Machine (FSM หลักควบคุมสถานะเกม)</h2>
+<p>
+FSM หลักควบคุมวงจรชีวิตของเกม (Game Lifecycle) ตั้งแต่การเปิดเครื่อง เลือกโหมด เล่นเกม และจบเกม 
+สถานะถูกเก็บอยู่ในรีจิสเตอร์ <code>game_state [2:0]</code> ภายในโมดูล <code>game_engine.sv</code>
+</p>
+
+<div class="diagram-container">
+  <div class="diagram-title">Diagram 1.1: Master Game State Transition Diagram</div>
+  <svg width="720" height="260" viewBox="0 0 720 260">
+    <defs>
+      <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L6,3 L0,6 Z" fill="#475569" />
+      </marker>
+      <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L6,3 L0,6 Z" fill="#2563eb" />
+      </marker>
+      <marker id="arrow-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L6,3 L0,6 Z" fill="#dc2626" />
+      </marker>
+      <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L6,3 L0,6 Z" fill="#16a34a" />
+      </marker>
+      <filter id="drop-shadow" x="-10%" y="-10%" width="130%" height="130%">
+        <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.12"/>
+      </filter>
+    </defs>
+
+    <!-- Reset Pointer -->
+    <path d="M 20,65 L 60,65" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" />
+    <text x="35" y="55" font-size="9" font-weight="700" fill="#64748b" text-anchor="middle">rst_n</text>
+
+    <!-- State: GS_TITLE (0) -->
+    <rect x="65" y="35" width="120" height="60" rx="8" fill="#f8fafc" stroke="#3b82f6" stroke-width="2" filter="url(#drop-shadow)"/>
+    <text x="125" y="58" font-size="11" font-weight="bold" fill="#1e3a8a" text-anchor="middle">GS_TITLE (0)</text>
+    <text x="125" y="74" font-size="8.5" fill="#64748b" text-anchor="middle">เลือกโหมด / รอเริ่มเกม</text>
+    <text x="125" y="86" font-size="8" fill="#0284c7" text-anchor="middle">SW[3], BTNC / Fire</text>
+
+    <!-- Transition TITLE -> WAVE_INTRO -->
+    <path d="M 185,65 L 255,65" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-blue)" />
+    <text x="220" y="55" font-size="8.5" font-weight="600" fill="#2563eb" text-anchor="middle">Start Pulse</text>
+
+    <!-- State: GS_WAVE_INTRO (1) -->
+    <rect x="260" y="35" width="130" height="60" rx="8" fill="#f8fafc" stroke="#0284c7" stroke-width="2" filter="url(#drop-shadow)"/>
+    <text x="325" y="58" font-size="11" font-weight="bold" fill="#0369a1" text-anchor="middle">GS_WAVE_INTRO (1)</text>
+    <text x="325" y="74" font-size="8.5" fill="#64748b" text-anchor="middle">แบนเนอร์เวฟ (75 เฟรม)</text>
+    <text x="325" y="86" font-size="8" fill="#0284c7" text-anchor="middle">intro_timer == 0</text>
+
+    <!-- Transition WAVE_INTRO -> PLAY -->
+    <path d="M 390,65 L 455,65" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-blue)" />
+    <text x="422" y="55" font-size="8.5" font-weight="600" fill="#2563eb" text-anchor="middle">Timer Expiry</text>
+
+    <!-- State: GS_PLAY (2) -->
+    <rect x="460" y="35" width="120" height="60" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2" filter="url(#drop-shadow)"/>
+    <text x="520" y="58" font-size="11" font-weight="bold" fill="#15803d" text-anchor="middle">GS_PLAY (2)</text>
+    <text x="520" y="74" font-size="8.5" fill="#166534" text-anchor="middle">การเล่นเกมปกติ</text>
+    <text x="520" y="86" font-size="8" fill="#475569" text-anchor="middle">Sub-FSM Pipeline</text>
+
+    <!-- Transition PLAY -> PAUSED -->
+    <path d="M 520,95 L 520,165" fill="none" stroke="#475569" stroke-width="1.8" marker-end="url(#arrow)" />
+    <text x="532" y="132" font-size="8" font-weight="600" fill="#475569">sw_pause</text>
+
+    <!-- Transition PAUSED -> PLAY -->
+    <path d="M 500,165 L 500,95" fill="none" stroke="#475569" stroke-width="1.8" marker-end="url(#arrow)" />
+    <text x="445" y="132" font-size="8" font-weight="600" fill="#475569">!sw_pause</text>
+
+    <!-- State: GS_PAUSED (3) -->
+    <rect x="450" y="170" width="120" height="50" rx="8" fill="#fefce8" stroke="#ca8a04" stroke-width="2" filter="url(#drop-shadow)"/>
+    <text x="510" y="193" font-size="10.5" font-weight="bold" fill="#854d0e" text-anchor="middle">GS_PAUSED (3)</text>
+    <text x="510" y="208" font-size="8" fill="#a16207" text-anchor="middle">หยุดเกมชั่วคราว (SW[15])</text>
+
+    <!-- Transition PLAY -> WAVE_INTRO (Next Wave) -->
+    <path d="M 490,35 C 470,10 350,10 330,35" fill="none" stroke="#0284c7" stroke-width="1.8" stroke-dasharray="4,3" marker-end="url(#arrow-blue)" />
+    <text x="410" y="18" font-size="8" font-weight="600" fill="#0284c7" text-anchor="middle">Wave Cleared (Wave &lt; 4)</text>
+
+    <!-- Transition PLAY -> VICTORY -->
+    <path d="M 580,50 L 640,50 L 640,110" fill="none" stroke="#16a34a" stroke-width="2" marker-end="url(#arrow-green)" />
+    <text x="655" y="75" font-size="8" font-weight="700" fill="#16a34a">boss_hp == 0</text>
+
+    <!-- State: GS_VICTORY (4) -->
+    <rect x="590" y="115" width="115" height="52" rx="8" fill="#f0fdf4" stroke="#22c55e" stroke-width="2" filter="url(#drop-shadow)"/>
+    <text x="647" y="137" font-size="10.5" font-weight="bold" fill="#15803d" text-anchor="middle">GS_VICTORY (4)</text>
+    <text x="647" y="153" font-size="8" fill="#166534" text-anchor="middle">ชนะบอส AJV สำเร็จ</text>
+
+    <!-- Transition PLAY -> GAMEOVER -->
+    <path d="M 545,95 L 545,145 L 350,145 L 350,170" fill="none" stroke="#dc2626" stroke-width="2" marker-end="url(#arrow-red)" />
+    <text x="400" y="140" font-size="8" font-weight="700" fill="#dc2626" text-anchor="middle">lives == 0 || sw_giveup</text>
+
+    <!-- State: GS_GAMEOVER (5) -->
+    <rect x="290" y="170" width="120" height="52" rx="8" fill="#fef2f2" stroke="#ef4444" stroke-width="2" filter="url(#drop-shadow)"/>
+    <text x="350" y="192" font-size="10.5" font-weight="bold" fill="#991b1b" text-anchor="middle">GS_GAMEOVER (5)</text>
+    <text x="350" y="208" font-size="8" fill="#b91c1c" text-anchor="middle">พลังชีวิตหมด / ยอมแพ้</text>
+
+    <!-- Transition GAMEOVER / VICTORY back to TITLE -->
+    <path d="M 290,195 L 125,195 L 125,95" fill="none" stroke="#64748b" stroke-width="1.8" marker-end="url(#arrow)" />
+    <text x="200" y="190" font-size="8" font-weight="600" fill="#64748b" text-anchor="middle">Start Pulse (เริ่มเกมใหม่)</text>
+
+    <path d="M 647,167 L 647,240 L 105,240 L 105,95" fill="none" stroke="#64748b" stroke-width="1.8" marker-end="url(#arrow)" />
+    <text x="380" y="235" font-size="8" font-weight="600" fill="#64748b" text-anchor="middle">Start Pulse จากหน้าชนะ</text>
+  </svg>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width: 18%;">State Register</th>
+      <th style="width: 14%;">รหัส State</th>
+      <th style="width: 32%;">เงื่อนไขการทำงานในสถานะ</th>
+      <th style="width: 36%;">เงื่อนไขการเปลี่ยนสถานะ (Next State Logic)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>GS_TITLE</b></td>
+      <td><code>3'd0</code></td>
+      <td>หน้าจอเริ่มต้น แสดงชื่อเกม ปรับระดับความยาก (SW[3] หรือลูกศร)</td>
+      <td><code>any_start_pulse</code> $ightarrow$ <b>GS_WAVE_INTRO</b> (ตั้ง wave=1, intro_timer=75)</td>
+    </tr>
+    <tr>
+      <td><b>GS_WAVE_INTRO</b></td>
+      <td><code>3'd1</code></td>
+      <td>แสดงข้อความ "WAVE X" นาน 75 เฟรม (1.25s), ศัตรูบินเข้าแถว</td>
+      <td><code>intro_timer == 0</code> $ightarrow$ <b>GS_PLAY</b></td>
+    </tr>
+    <tr>
+      <td><b>GS_PLAY</b></td>
+      <td><code>3'd2</code></td>
+      <td>ประมวลผลเกมเต็มรูปแบบผ่าน 14 Sub-FSM Phases</td>
+      <td>
+        • <code>player_lives == 0 || sw_giveup</code> $ightarrow$ <b>GS_GAMEOVER</b><br>
+        • <code>wave_num == 4 &amp;&amp; boss_hp == 0</code> $ightarrow$ <b>GS_VICTORY</b><br>
+        • <code>wave_num &lt; 4 &amp;&amp; en_active == 0</code> $ightarrow$ <b>GS_WAVE_INTRO</b> (wave++)<br>
+        • <code>sw_pause == 1</code> $ightarrow$ <b>GS_PAUSED</b>
+      </td>
+    </tr>
+    <tr>
+      <td><b>GS_PAUSED</b></td>
+      <td><code>3'd3</code></td>
+      <td>หยุดนับเฟรมเกม แช่แข็งพิกัด แสดงตัวอักษร PAUSED</td>
+      <td><code>sw_pause == 0</code> $ightarrow$ <b>GS_PLAY</b></td>
+    </tr>
+    <tr>
+      <td><b>GS_VICTORY</b></td>
+      <td><code>3'd4</code></td>
+      <td>แสดงคำว่า VICTORY! YOU WIN, เล่นเพลงชัยชนะ</td>
+      <td><code>any_start_pulse</code> $ightarrow$ <b>GS_TITLE</b> (เริ่มรอบใหม่)</td>
+    </tr>
+    <tr>
+      <td><b>GS_GAMEOVER</b></td>
+      <td><code>3'd5</code></td>
+      <td>แสดงคำว่า GAME OVER, อัปเดต High Score</td>
+      <td><code>any_start_pulse</code> $ightarrow$ <b>GS_TITLE</b></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<!-- Page 2: Goose Evolution FSM + Voice Barrier FSM -->
+<h2>2. Goose Evolution & Power-up State Machine (FSM การพัฒนาร่างห่าน)</h2>
+<p>
+ผู้เล่นมีสถานะร่าง 3 ระดับ ควบคุมโดย <code>player_form [1:0]</code> และตัวนับถอยหลัง <code>evo_sec_rem [3:0]</code> 
+ร่วมกับตัวหารความถี่เฟรม <code>evo_frame_div [5:0]</code> (60 เฟรมต่อ 1 วินาที)
+</p>
+
+<div class="diagram-container">
+  <div class="diagram-title">Diagram 2.1: Goose Evolution State Transition Diagram</div>
+  <svg width="700" height="200" viewBox="0 0 700 200">
+    <defs>
+      <marker id="ar-slate" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#64748b" /></marker>
+      <marker id="ar-cyan" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#0284c7" /></marker>
+      <marker id="ar-purp" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#9333ea" /></marker>
+      <marker id="ar-gray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#94a3b8" /></marker>
+    </defs>
+
+    <!-- State: Form 0 (White Goose) -->
+    <rect x="40" y="45" width="160" height="75" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="2.2" filter="url(#drop-shadow)"/>
+    <text x="120" y="70" font-size="12" font-weight="bold" fill="#1e293b" text-anchor="middle">FORM 0: White Goose</text>
+    <text x="120" y="88" font-size="9" fill="#475569" text-anchor="middle">ร่างห่านขาวเริ่มต้น (ถาวร)</text>
+    <text x="120" y="103" font-size="8.5" fill="#2563eb" text-anchor="middle">ยิงกระสุนเดี่ยว 1 นัด (Single Beam)</text>
+
+    <!-- Transition Form 0 -> Form 1 -->
+    <path d="M 200,75 L 265,75" fill="none" stroke="#0284c7" stroke-width="2.5" marker-end="url(#ar-cyan)" />
+    <text x="233" y="65" font-size="8.5" font-weight="700" fill="#0284c7" text-anchor="middle">เก็บ Blue Orb</text>
+    <text x="233" y="90" font-size="7.5" fill="#64748b" text-anchor="middle">Timer = 9s</text>
+
+    <!-- State: Form 1 (Blue Goose) -->
+    <rect x="270" y="45" width="170" height="75" rx="10" fill="#f0f9ff" stroke="#0284c7" stroke-width="2.5" filter="url(#drop-shadow)"/>
+    <text x="355" y="70" font-size="12" font-weight="bold" fill="#0369a1" text-anchor="middle">FORM 1: Blue Goose</text>
+    <text x="355" y="88" font-size="9" fill="#0284c7" text-anchor="middle">ร่างห่านฟ้า (จำกัดเวลา 9 วินาที)</text>
+    <text x="355" y="103" font-size="8.5" fill="#075985" text-anchor="middle">ยิงกระจาย 3 ทิศทาง (-15°, 0°, +15°)</text>
+
+    <!-- Transition Form 1 -> Form 2 -->
+    <path d="M 440,75 L 505,75" fill="none" stroke="#9333ea" stroke-width="2.5" marker-end="url(#ar-purp)" />
+    <text x="473" y="65" font-size="8.5" font-weight="700" fill="#9333ea" text-anchor="middle">เก็บ Rainbow Orb</text>
+    <text x="473" y="90" font-size="7.5" fill="#64748b" text-anchor="middle">Timer = 9s</text>
+
+    <!-- State: Form 2 (Rainbow Goose) -->
+    <rect x="510" y="45" width="165" height="75" rx="10" fill="#faf5ff" stroke="#a855f7" stroke-width="2.5" filter="url(#drop-shadow)"/>
+    <text x="592" y="70" font-size="12" font-weight="bold" fill="#7e22ce" text-anchor="middle">FORM 2: Rainbow</text>
+    <text x="592" y="88" font-size="9" fill="#a855f7" text-anchor="middle">ร่างห่านรุ้งเทพ (จำกัด 9 วิ)</text>
+    <text x="592" y="103" font-size="8.5" fill="#6b21a8" text-anchor="middle">ปืนเลเซอร์ 5 แฉก ทะลวงศัตรู</text>
+
+    <!-- Timeout Form 1 -> Form 0 -->
+    <path d="M 320,120 C 320,165 150,165 150,120" fill="none" stroke="#64748b" stroke-width="1.8" stroke-dasharray="4,3" marker-end="url(#ar-slate)" />
+    <text x="235" y="160" font-size="8.5" font-weight="600" fill="#dc2626" text-anchor="middle">หมดเวลา 9 วิ (evo_sec_rem == 0)</text>
+
+    <!-- Timeout Form 2 -> Form 0 -->
+    <path d="M 592,120 C 592,185 100,185 100,120" fill="none" stroke="#64748b" stroke-width="1.8" stroke-dasharray="4,3" marker-end="url(#ar-slate)" />
+    <text x="345" y="180" font-size="8.5" font-weight="600" fill="#dc2626" text-anchor="middle">หมดเวลา 9 วิ (evo_sec_rem == 0) $ightarrow$ กลับสู่ร่างขาว</text>
+
+    <!-- Self Loop Form 2 Refresh -->
+    <path d="M 640,45 C 640,15 670,15 670,60 C 670,75 660,75 675,75" fill="none" stroke="#a855f7" stroke-width="1.5" marker-end="url(#ar-purp)" />
+    <text x="655" y="25" font-size="7.5" fill="#7e22ce">เก็บซ้ำ รีเซ็ต 9s</text>
+  </svg>
+</div>
+
+<h2>3. Voice-Activated Defensive Barrier FSM (สกิลบาเรียเสียงสะท้อนกระสุน)</h2>
+<p>
+ทำงานเฉพาะใน <b>Wave 4 (Last Boss)</b> สกิลนี้สร้างบาเรียป้องกันรอบตัวห่าน พร้อมสะท้อนกระสุนศัตรูกลับไปทำร้ายบอส 
+มีระบบการทำงานแบบ 3 สถานะที่เชื่อมโยงกันอย่างเป็นลำดับ (Sequential Execution) 
+</p>
+
+<div class="diagram-container">
+  <div class="diagram-title">Diagram 3.1: Voice Shield Activation & Cooldown FSM</div>
+  <svg width="710" height="190" viewBox="0 0 710 190">
+    <!-- State: READY / IDLE -->
+    <rect x="40" y="45" width="170" height="75" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="2.2" filter="url(#drop-shadow)"/>
+    <text x="125" y="70" font-size="12" font-weight="bold" fill="#15803d" text-anchor="middle">SHIELD_READY (IDLE)</text>
+    <text x="125" y="87" font-size="8.5" fill="#166534" text-anchor="middle">บาเรียพร้อมใช้งาน (GUI เต็มเข็ม)</text>
+    <text x="125" y="101" font-size="8" fill="#475569" text-anchor="middle">ไมค์วัดพลังงานเสียงรอตรวจจับ</text>
+
+    <!-- Transition READY -> ACTIVE -->
+    <path d="M 210,75 L 285,75" fill="none" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrow-blue)" />
+    <text x="248" y="60" font-size="8" font-weight="bold" fill="#2563eb" text-anchor="middle">เสียงเกินเกณฑ์</text>
+    <text x="248" y="70" font-size="7" fill="#64748b" text-anchor="middle">(Wave==4 &amp;&amp; Vol &gt;= Thresh)</text>
+    <text x="248" y="90" font-size="7.5" fill="#0284c7" text-anchor="middle">timer &lt;= 180, cd &lt;= 480</text>
+
+    <!-- State: ACTIVE -->
+    <rect x="290" y="45" width="180" height="75" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5" filter="url(#drop-shadow)"/>
+    <text x="380" y="70" font-size="12" font-weight="bold" fill="#1d4ed8" text-anchor="middle">SHIELD_ACTIVE</text>
+    <text x="380" y="87" font-size="8.5" fill="#1e40af" text-anchor="middle">บาเรียคุ้มกัน 3.0 วินาที (180 เฟรม)</text>
+    <text x="380" y="101" font-size="8" fill="#0369a1" text-anchor="middle">สะท้อนกระสุนบอส / อมตะจากการชน</text>
+
+    <!-- Transition ACTIVE -> COOLDOWN -->
+    <path d="M 470,75 L 530,75" fill="none" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#arrow)" />
+    <text x="500" y="65" font-size="8" font-weight="bold" fill="#d97706" text-anchor="middle">ครบ 3.0 วิ</text>
+    <text x="500" y="88" font-size="7" fill="#64748b" text-anchor="middle">timer == 0</text>
+
+    <!-- State: COOLDOWN -->
+    <rect x="535" y="45" width="165" height="75" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="2.2" filter="url(#drop-shadow)"/>
+    <text x="617" y="70" font-size="12" font-weight="bold" fill="#b45309" text-anchor="middle">SHIELD_COOLDOWN</text>
+    <text x="617" y="87" font-size="8.5" fill="#92400e" text-anchor="middle">คูลดาวน์ 8.0 วินาที (480 เฟรม)</text>
+    <text x="617" y="101" font-size="8" fill="#78350f" text-anchor="middle">GUI แถบพลังงานค่อยๆ เติม</text>
+
+    <!-- Transition COOLDOWN -> READY -->
+    <path d="M 617,120 C 617,165 125,165 125,120" fill="none" stroke="#16a34a" stroke-width="2" marker-end="url(#arrow-green)" />
+    <text x="370" y="160" font-size="8.5" font-weight="700" fill="#15803d" text-anchor="middle">คูลดาวน์เสร็จสิ้น: cd_timer == 0 (ปลดล็อกพร้อมใช้รอบถัดไป)</text>
+  </svg>
+</div>
+
+<div class="note-box">
+  <b>เทคนิค Sequential Hardware Counting:</b> 
+  ใน <code>game_engine.sv</code> ตัวนับ <code>barrier_cooldown</code> จะถูกหยุดไว้ไม่ให้ลดค่าระหว่างที่ <code>barrier_timer &gt; 0</code> 
+  ทำให้ผู้เล่นได้ผลลัพธ์เป็น: ระยะเวลากางบาเรีย 3.0 วินาทีเต็ม + ระยะคูลดาวน์รอใช้อีก 8.0 วินาทีเต็ม (รวมรอบการใช้ละ 11.0 วินาที)
+</div>
+
+<div class="page-break"></div>
+
+<!-- Page 3: Minion Flight FSM + Boss AJV Combat FSM -->
+<h2>4. Minion Alien Flight Mode FSM (FSM การบินและโจมตีของลูกกระจ๊อก)</h2>
+<p>
+ศัตรูลูกกระจ๊อกทั้ง 16 ตัวมีตัวแปรควบคุมพฤติกรรมแยกอิสระ <code>en_mode[15:0]</code> แต่ละตัวมี 4 สถานะการเคลื่อนที่:
+</p>
+
+<div class="diagram-container">
+  <div class="diagram-title">Diagram 4.1: Minion Flight Mode & Life Cycle FSM</div>
+  <svg width="680" height="190" viewBox="0 0 680 190">
+    <!-- State 0: MODE_ENTER -->
+    <rect x="30" y="35" width="130" height="60" rx="8" fill="#f8fafc" stroke="#3b82f6" stroke-width="2" filter="url(#drop-shadow)"/>
+    <text x="95" y="58" font-size="10.5" font-weight="bold" fill="#1e3a8a" text-anchor="middle">MODE_ENTER (00)</text>
+    <text x="95" y="74" font-size="8" fill="#64748b" text-anchor="middle">บินจากขอบบนจอ</text>
+    <text x="95" y="86" font-size="7.5" fill="#0284c7" text-anchor="middle">เคลื่อนเข้าหาพิกัด Home</text>
+
+    <!-- Transition ENTER -> FORM -->
+    <path d="M 160,65 L 215,65" fill="none" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrow-blue)" />
+    <text x="187" y="55" font-size="8" font-weight="600" fill="#3b82f6" text-anchor="middle">ถึงที่หมาย</text>
+
+    <!-- State 1: MODE_FORM -->
+    <rect x="220" y="35" width="135" height="60" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2" filter="url(#drop-shadow)"/>
+    <text x="287" y="58" font-size="10.5" font-weight="bold" fill="#15803d" text-anchor="middle">MODE_FORM (01)</text>
+    <text x="287" y="74" font-size="8" fill="#166534" text-anchor="middle">ตั้งแถวโยกสลับฟันปลา</text>
+    <text x="287" y="86" font-size="7.5" fill="#475569" text-anchor="middle">พิกัดแกว่งตาม form_sway</text>
+
+    <!-- Transition FORM -> DIVE -->
+    <path d="M 355,65 L 415,65" fill="none" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow)" />
+    <text x="385" y="55" font-size="8" font-weight="600" fill="#d97706" text-anchor="middle">สุ่มทิ้งดิ่ง</text>
+
+    <!-- State 2: MODE_DIVE -->
+    <rect x="420" y="35" width="130" height="60" rx="8" fill="#fffbeb" stroke="#f59e0b" stroke-width="2" filter="url(#drop-shadow)"/>
+    <text x="485" y="58" font-size="10.5" font-weight="bold" fill="#b45309" text-anchor="middle">MODE_DIVE (10)</text>
+    <text x="485" y="74" font-size="8" fill="#92400e" text-anchor="middle">โฉบดิ่งเล็งใส่ผู้เล่น</text>
+    <text x="485" y="86" font-size="7.5" fill="#b45309" text-anchor="middle">ยิงกระสุน Snipe</text>
+
+    <!-- Transition DIVE -> RETURN -->
+    <path d="M 485,95 L 485,130 L 390,130" fill="none" stroke="#64748b" stroke-width="1.8" marker-end="url(#arrow)" />
+    <text x="440" y="125" font-size="7.5" font-weight="600" fill="#64748b">เลยขอบจอล่าง (Y &gt; 480)</text>
+
+    <!-- State 3: MODE_RETURN -->
+    <rect x="250" y="115" width="135" height="55" rx="8" fill="#f1f5f9" stroke="#64748b" stroke-width="2" filter="url(#drop-shadow)"/>
+    <text x="317" y="137" font-size="10" font-weight="bold" fill="#334155" text-anchor="middle">MODE_RETURN (11)</text>
+    <text x="317" y="152" font-size="7.5" fill="#475569" text-anchor="middle">วนขึ้นบนฟ้า กลับเข้าตำแหน่งเดิม</text>
+
+    <!-- Transition RETURN -> FORM -->
+    <path d="M 250,140 L 190,140 L 190,75 L 220,75" fill="none" stroke="#16a34a" stroke-width="1.8" marker-end="url(#arrow-green)" />
+    <text x="175" y="110" font-size="7.5" font-weight="600" fill="#16a34a">ถึง Home</text>
+
+    <!-- Collision / Death Branch -->
+    <path d="M 485,35 L 485,15 L 610,15 L 610,50" fill="none" stroke="#dc2626" stroke-width="2" marker-end="url(#arrow-red)" />
+    <text x="560" y="27" font-size="8" font-weight="700" fill="#dc2626" text-anchor="middle">ถูกยิง HP == 0</text>
+
+    <!-- Death Node -->
+    <circle cx="610" cy="70" r="20" fill="#fef2f2" stroke="#dc2626" stroke-width="2" />
+    <text x="610" y="74" font-size="9" font-weight="bold" fill="#991b1b" text-anchor="middle">DESTROY</text>
+    <text x="610" y="105" font-size="7.5" fill="#dc2626" text-anchor="middle">ระเบิด / สุ่มดรอป Orb</text>
+  </svg>
+</div>
+
+<h2>5. Boss AJV Combat Phase & Attack FSM (FSM บอสใหญ่ AJV และเฟสการต่อสู้)</h2>
+<p>
+บอสประจำด่าน 4 มีโครงสร้างการเปลี่ยนผ่านเฟสตามระดับพลังชีวิต <code>boss_hp</code> และควบคุมการยิงด้วย <code>PH_BOSS_FIRE</code>:
+</p>
+
+<div class="diagram-container">
+  <div class="diagram-title">Diagram 5.1: Boss AJV Phase Transition & Attack Patterns</div>
+  <svg width="700" height="210" viewBox="0 0 700 210">
+    <!-- State: INTRO -->
+    <rect x="30" y="55" width="125" height="65" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="2" filter="url(#drop-shadow)"/>
+    <text x="92" y="80" font-size="11" font-weight="bold" fill="#334155" text-anchor="middle">BOSS_INTRO</text>
+    <text x="92" y="96" font-size="8" fill="#64748b" text-anchor="middle">เลื่อนลงมากลางจอ</text>
+    <text x="92" y="108" font-size="7.5" fill="#0284c7" text-anchor="middle">Y เลื่อนจาก 0 $ightarrow$ 80</text>
+
+    <!-- Transition INTRO -> PHASE 1 -->
+    <path d="M 155,87 L 220,87" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-blue)" />
+    <text x="187" y="78" font-size="8" font-weight="600" fill="#2563eb" text-anchor="middle">เข้าตำแหน่ง</text>
+
+    <!-- State: PHASE 1 -->
+    <rect x="225" y="45" width="185" height="85" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="2.2" filter="url(#drop-shadow)"/>
+    <text x="317" y="70" font-size="11.5" font-weight="bold" fill="#1e3a8a" text-anchor="middle">PHASE 1: หน้าปกติ (HP &gt; 50%)</text>
+    <text x="317" y="86" font-size="8.5" fill="#1e40af" text-anchor="middle">• สไปรท์หน้าอาจารย์ปกติ</text>
+    <text x="317" y="99" font-size="8.5" fill="#1e40af" text-anchor="middle">• ความเร็ว 3 px/f, โยกส่ายนุ่มนวล</text>
+    <text x="317" y="112" font-size="8" fill="#0284c7" text-anchor="middle">• ยิงสลุตพัด Radial Salvo (4-5 นัด)</text>
+
+    <!-- Transition PHASE 1 -> PHASE 2 -->
+    <path d="M 410,87 L 485,87" fill="none" stroke="#dc2626" stroke-width="2.5" marker-end="url(#arrow-red)" />
+    <text x="447" y="75" font-size="8.5" font-weight="bold" fill="#dc2626" text-anchor="middle">HP $\le$ 50%</text>
+    <text x="447" y="99" font-size="7.5" fill="#991b1b" text-anchor="middle">บอสคลั่ง Enraged</text>
+
+    <!-- State: PHASE 2 -->
+    <rect x="490" y="45" width="185" height="85" rx="8" fill="#fef2f2" stroke="#ef4444" stroke-width="2.5" filter="url(#drop-shadow)"/>
+    <text x="582" y="70" font-size="11.5" font-weight="bold" fill="#991b1b" text-anchor="middle">PHASE 2: คลั่งตาแดง (HP $\le$ 50%)</text>
+    <text x="582" y="86" font-size="8.5" fill="#b91c1c" text-anchor="middle">• สไปรท์หน้าคลั่งตาเลเซอร์แดง (AJV2)</text>
+    <text x="582" y="99" font-size="8.5" fill="#b91c1c" text-anchor="middle">• บินฉวัดเฉวียนเร็ว 4-5 px/f (Feint Weave)</text>
+    <text x="582" y="112" font-size="8" fill="#991b1b" text-anchor="middle">• กระสุนหมุนควง Vortex Barrage (7-8 นัด)</text>
+
+    <!-- Defeat Transition -->
+    <path d="M 582,130 L 582,165 L 430,165" fill="none" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arrow-green)" />
+    <text x="520" y="160" font-size="8.5" font-weight="bold" fill="#16a34a" text-anchor="middle">HP == 0 (บอสพ่ายแพ้)</text>
+
+    <!-- Victory Node -->
+    <rect x="290" y="145" width="135" height="40" rx="8" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
+    <text x="357" y="170" font-size="11" font-weight="bold" fill="#15803d" text-anchor="middle">VICTORY OVER AJV</text>
+  </svg>
+</div>
+
+<div class="page-break"></div>
+
+<!-- Page 4: Guaranteed Drop FSM + Invulnerability FSM + Sub-phase Pipeline -->
+<h2>6. Guaranteed Item Drop & Milestone FSM (ระบบรับประกันไอเทมดรอป)</h2>
+<p>
+แก้ไขปัญหาความยากเกินไปในด่านสุดท้าย ด้วยกลไกตรวจสอบสถานะผู้เล่นและเลือดบอส เพื่อบังคับปล่อยไอเทมแบบ Guaranteed:
+</p>
+
+<div class="diagram-container">
+  <div class="diagram-title">Diagram 6.1: Guaranteed Rainbow Drop & Milestone Drop FSM</div>
+  <svg width="680" height="150" viewBox="0 0 680 150">
+    <rect x="30" y="40" width="160" height="60" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="2" filter="url(#drop-shadow)"/>
+    <text x="110" y="65" font-size="10.5" font-weight="bold" fill="#334155" text-anchor="middle">DROP_IDLE</text>
+    <text x="110" y="82" font-size="8" fill="#64748b" text-anchor="middle">รอเงื่อนไขผู้เล่นและเลือดบอส</text>
+
+    <path d="M 190,70 L 260,70" fill="none" stroke="#0284c7" stroke-width="2" marker-end="url(#arrow-blue)" />
+    <text x="225" y="60" font-size="7.5" font-weight="bold" fill="#0284c7" text-anchor="middle">Wave==4 &amp;&amp;</text>
+    <text x="225" y="85" font-size="7.5" font-weight="bold" fill="#0284c7" text-anchor="middle">Form == BLUE</text>
+
+    <rect x="265" y="40" width="170" height="60" rx="8" fill="#f0f9ff" stroke="#0284c7" stroke-width="2" filter="url(#drop-shadow)"/>
+    <text x="350" y="63" font-size="10" font-weight="bold" fill="#0369a1" text-anchor="middle">COUNTDOWN_2.5S</text>
+    <text x="350" y="78" font-size="8" fill="#0284c7" text-anchor="middle">boss_orb_timer &lt;= 160</text>
+    <text x="350" y="90" font-size="7.5" fill="#64748b" text-anchor="middle">นับถอยหลัง 2.5-3.0 วินาที</text>
+
+    <path d="M 435,70 L 495,70" fill="none" stroke="#9333ea" stroke-width="2" marker-end="url(#arrow-purp)" />
+    <text x="465" y="62" font-size="7.5" font-weight="bold" fill="#9333ea" text-anchor="middle">ครบเวลา</text>
+
+    <rect x="500" y="40" width="150" height="60" rx="8" fill="#faf5ff" stroke="#a855f7" stroke-width="2" filter="url(#drop-shadow)"/>
+    <text x="575" y="63" font-size="10" font-weight="bold" fill="#7e22ce" text-anchor="middle">SPAWN_RAINBOW</text>
+    <text x="575" y="78" font-size="8" fill="#9333ea" text-anchor="middle">ปล่อย Rainbow Orb ทันที</text>
+    <text x="575" y="90" font-size="7.5" fill="#64748b" text-anchor="middle">เก็บทันก่อนร่างฟ้าหมด 9 วิ</text>
+  </svg>
+</div>
+
+<h2>7. Player Hit & Invulnerability FSM (ระบบอมตะหลังบาดเจ็บ)</h2>
+<p>
+ป้องกันการเสียเลือดซ้อนจากการโดนกระสุนติดๆ กัน ด้วยสถานะอมตะชั่วขณะ (Invulnerability Frame):
+</p>
+
+<div class="diagram-container">
+  <div class="diagram-title">Diagram 7.1: Player Damage & Invulnerability FSM</div>
+  <svg width="680" height="150" viewBox="0 0 680 150">
+    <rect x="40" y="35" width="160" height="65" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2" filter="url(#drop-shadow)"/>
+    <text x="120" y="60" font-size="11" font-weight="bold" fill="#15803d" text-anchor="middle">VULNERABLE (ปกติ)</text>
+    <text x="120" y="76" font-size="8.5" fill="#166534" text-anchor="middle">รับดาเมจได้ตามปกติ</text>
+    <text x="120" y="90" font-size="8" fill="#475569" text-anchor="middle">player_invuln == 0</text>
+
+    <path d="M 200,65 L 275,65" fill="none" stroke="#dc2626" stroke-width="2" marker-end="url(#arrow-red)" />
+    <text x="237" y="55" font-size="8" font-weight="bold" fill="#dc2626" text-anchor="middle">โดนชน / โดนยิง</text>
+    <text x="237" y="80" font-size="7.5" fill="#64748b" text-anchor="middle">(ถ้าไม่มีบาเรีย)</text>
+
+    <rect x="280" y="35" width="190" height="65" rx="8" fill="#fef2f2" stroke="#ef4444" stroke-width="2" filter="url(#drop-shadow)"/>
+    <text x="375" y="60" font-size="11" font-weight="bold" fill="#991b1b" text-anchor="middle">INVULNERABLE (อมตะ 1.5 วิ)</text>
+    <text x="375" y="76" font-size="8.5" fill="#b91c1c" text-anchor="middle">player_invuln &lt;= 90 เฟรม</text>
+    <text x="375" y="90" font-size="8" fill="#7f1d1d" text-anchor="middle">สไปรท์กะพริบ 15Hz ไม่รับดาเมจ</text>
+
+    <path d="M 375,100 C 375,140 120,140 120,100" fill="none" stroke="#16a34a" stroke-width="1.8" marker-end="url(#arrow-green)" />
+    <text x="247" y="135" font-size="8" font-weight="600" fill="#15803d" text-anchor="middle">invuln_timer == 0 (กลับสู่สถานะปกติ)</text>
+
+    <path d="M 470,65 L 530,65" fill="none" stroke="#dc2626" stroke-width="2" marker-end="url(#arrow-red)" />
+    <text x="500" y="55" font-size="7.5" font-weight="bold" fill="#dc2626" text-anchor="middle">lives == 0</text>
+
+    <rect x="535" y="35" width="110" height="65" rx="8" fill="#f8fafc" stroke="#475569" stroke-width="2" filter="url(#drop-shadow)"/>
+    <text x="590" y="63" font-size="10.5" font-weight="bold" fill="#1e293b" text-anchor="middle">GAME OVER</text>
+    <text x="590" y="82" font-size="8" fill="#64748b" text-anchor="middle">พลังชีวิตหมด</text>
+  </svg>
+</div>
+
+<h2>8. Hardware Multi-Phase Execution Pipeline (Sub-FSM ในระดับ Clock Cycle)</h2>
+<p>
+เพื่อลดความยาวของ Critical Path และหลีกเลี่ยง Timing Violation ใน FPGA ชิป Artix-7, โมดูล <code>game_engine.sv</code> 
+ไม่ได้ประมวลผลทุกอย่างในรอบสัญญาณนาฬิกาเดียว แต่ใช้ <b>Sub-FSM Time-Multiplexing 14 Phases</b>:
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width: 15%;">Phase</th>
+      <th style="width: 25%;">ชื่อ Phase</th>
+      <th style="width: 60%;">หน้าที่และการคำนวณในระดับสัญญาณนาฬิกา</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>4'd0</code></td>
+      <td><b>PH_IDLE</b></td>
+      <td>รอสัญญาณ <code>game_tick</code> (พัลส์ 60 Hz 1 รอบสัญญาณนาฬิกาเมื่อสิ้นสุดเฟรมภาพ VGA)</td>
+    </tr>
+    <tr>
+      <td><code>4'd1</code></td>
+      <td><b>PH_PLAYER</b></td>
+      <td>อัปเดตตำแหน่งห่าน (ปุ่มกด/เอียงบอร์ด), นับถอยหลังร่างห่าน, ตรวจจับเสียงกางบาเรีย</td>
+    </tr>
+    <tr>
+      <td><code>4'd2</code></td>
+      <td><b>PH_SPAWN_PB</b></td>
+      <td>ตรวจสอบการกดปุ่มยิง/Autofire สปอว์นกระสุนตามฟอร์มห่าน (1 นัด, 3 นัด, หรือ 5 นัด)</td>
+    </tr>
+    <tr>
+      <td><code>4'd3</code></td>
+      <td><b>PH_UPD_PB</b></td>
+      <td>คำนวณพิกัด $X, Y$ กระสุนผู้เล่นทั้ง 32 นัด และปิดการทำงานเมื่อหลุดขอบจอ</td>
+    </tr>
+    <tr>
+      <td><code>4'd4</code></td>
+      <td><b>PH_COL_PB</b></td>
+      <td>ตรวจจับการชนระหว่างกระสุนผู้เล่นกับมินเนียนทั้ง 16 ตัว และบอส AJV แบบ Round-Robin</td>
+    </tr>
+    <tr>
+      <td><code>4'd5</code></td>
+      <td><b>PH_UPD_EN</b></td>
+      <td>อัปเดตฟิสิกส์การบินของเอเลี่ยนลูกกระจ๊อกตาม FSM โหมดบิน (Enter, Form, Dive, Return)</td>
+    </tr>
+    <tr>
+      <td><code>4'd6</code></td>
+      <td><b>PH_UPD_BOSS</b></td>
+      <td>อัปเดตการเคลื่อนที่บอส AJV, การสลับทิศทาง, การเข้าสู่เฟสคลั่งตาแดงเมื่อเลือด $\le 50\%$</td>
+    </tr>
+    <tr>
+      <td><code>4'd7</code></td>
+      <td><b>PH_UPD_EB</b></td>
+      <td>อัปเดตกระสุนศัตรู ตรวจจับการชนกับตัวห่าน หรือการสะท้อนมุมเมื่อชนบาเรียเสียง</td>
+    </tr>
+    <tr>
+      <td><code>4'd8</code></td>
+      <td><b>PH_UPD_ORB</b></td>
+      <td>อัปเดตการตกของไอเทม Orb และการชนเก็บไอเทมเพื่อแปลงร่างห่าน</td>
+    </tr>
+    <tr>
+      <td><code>4'd9</code></td>
+      <td><b>PH_UPD_EXP</b></td>
+      <td>นับถอยหลังเฟรมแอนิเมชันลูกไฟระเบิด 8 ช่อง</td>
+    </tr>
+    <tr>
+      <td><code>4'd10</code></td>
+      <td><b>PH_WAVE_CHK</b></td>
+      <td>ตรวจสอบเงื่อนไขผ่านด่าน (ลูกกระจ๊อกหมด / บอสตาย) หรือเงื่อนไขแพ้ (เลือดหมด)</td>
+    </tr>
+    <tr>
+      <td><code>4'd11</code></td>
+      <td><b>PH_INIT_WAVE</b></td>
+      <td>เซ็ตอัปพิกัดเริ่มต้น ประเภทศัตรู และเลือดเริ่มต้นสำหรับเวฟถัดไป</td>
+    </tr>
+    <tr>
+      <td><code>4'd12</code></td>
+      <td><b>PH_HUD_X</b></td>
+      <td>อัปเดตข้อมูล Text Character Buffer ลง BRAM เพื่อแสดงผล HUD บนจอ VGA</td>
+    </tr>
+    <tr>
+      <td><code>4'd13</code></td>
+      <td><b>PH_BOSS_FIRE</b></td>
+      <td>คำนวณและสปอว์นรูปแบบกระสุนของบอส (Radial Salvo หรือ Spinning Vortex Barrage)</td>
+    </tr>
+  </tbody>
+</table>
+
+</body>
+</html>
