@@ -79,7 +79,7 @@ PH_INIT_WAVE ➔ PH_HUD_X ➔ PH_BOSS_FIRE
 
 ## 🕹️ Controls & Hardware Peripherals (Nexys A7)
 
-### 1. Slide Switches (`SW[15:0]`)
+### 1. Slide Switches (`SW[15:0]`) — Hardware Debounced (5ms Filter)
 | Switch | Signal Name | Function & Logic State |
 |:---|:---|:---|
 | **SW[0]** | `sw_mute` | **Audio Mute:** `0` = Sound ON, `1` = Mute all audio output |
@@ -96,7 +96,7 @@ PH_INIT_WAVE ➔ PH_HUD_X ➔ PH_BOSS_FIRE
 
 ---
 
-### 2. Push Buttons (D-Pad)
+### 2. Push Buttons (D-Pad) — Hardware Debounced (5ms Filter)
 | Button | In-Game Action |
 |:---|:---|
 | **BTNU** | Move Goose Up |

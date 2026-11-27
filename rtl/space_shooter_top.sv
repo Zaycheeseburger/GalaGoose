@@ -71,7 +71,7 @@ module space_shooter_top #(
     );
 
     // -----------------------------------------------------------------------
-    // 2. Debounced Buttons & Switches
+    // 2. Debounced Buttons & Switches (5ms @ 25 MHz)
     // -----------------------------------------------------------------------
     wire [4:0] btn_deb, btn_rise;
     debounce_bank #(.WIDTH(5), .DEBOUNCE_MAX(DEBOUNCE_MAX)) u_deb_btn (
@@ -82,27 +82,24 @@ module space_shooter_top #(
         .rise_pulse(btn_rise)
     );
 
-    // 2-FF sync for switches
-    reg [15:0] sw_s0, sw_s1;
-    always @(posedge clk_25m) begin
-        if (!rst_n) begin
-            sw_s0 <= 16'd0;
-            sw_s1 <= 16'd0;
-        end else begin
-            sw_s0 <= SW;
-            sw_s1 <= sw_s0;
-        end
-    end
+    wire [15:0] sw_deb, sw_rise;
+    debounce_bank #(.WIDTH(16), .DEBOUNCE_MAX(DEBOUNCE_MAX)) u_deb_sw (
+        .clk(clk_25m),
+        .rst_n(rst_n),
+        .raw_in(SW),
+        .debounced(sw_deb),
+        .rise_pulse(sw_rise)
+    );
 
-    wire sw_mute     = sw_s1[0];
-    wire sw_autofire = sw_s1[1];
-    wire sw_tilt     = sw_s1[2];
-    wire sw_hard     = sw_s1[3];
-    wire sw_debug    = sw_s1[4];
-    wire sw_kbd      = sw_s1[5];
-    wire sw_kbd_swap = sw_s1[6];
-    wire sw_giveup   = sw_s1[14];
-    wire sw_pause    = sw_s1[15];
+    wire sw_mute     = sw_deb[0];
+    wire sw_autofire = sw_deb[1];
+    wire sw_tilt     = sw_deb[2];
+    wire sw_hard     = sw_deb[3];
+    wire sw_debug    = sw_deb[4];
+    wire sw_kbd      = sw_deb[5];
+    wire sw_kbd_swap = sw_deb[6];
+    wire sw_giveup   = sw_deb[14];
+    wire sw_pause    = sw_deb[15];
 
     // -----------------------------------------------------------------------
     // 2b. On-Board MEMS PDM Microphone & Shout Detector
@@ -111,9 +108,9 @@ module space_shooter_top #(
     wire       shout_trigger;
     // Switch 13:12 for microphone sensitivity tuning if desired:
     // 00: 85 (Normal shout), 01: 65 (Sensitive), 10: 105 (Louder), 11: 130
-    wire [7:0] mic_threshold = (sw_s1[13:12] == 2'b01) ? 8'd65  :
-                               (sw_s1[13:12] == 2'b10) ? 8'd105 :
-                               (sw_s1[13:12] == 2'b11) ? 8'd130 : 8'd85;
+    wire [7:0] mic_threshold = (sw_deb[13:12] == 2'b01) ? 8'd65  :
+                               (sw_deb[13:12] == 2'b10) ? 8'd105 :
+                               (sw_deb[13:12] == 2'b11) ? 8'd130 : 8'd85;
 
     pdm_microphone u_mic (
         .clk(clk_25m),
@@ -545,5 +542,5 @@ module space_shooter_top #(
     end
 
     // Keep unused switch bits referenced cleanly without affecting gameplay
-    wire _unused_ok = &{1'b0, sw_s1[14], sw_s1[11:7], boss_max_hp, player_lives, hard_mode};
+    wire _unused_ok = &{1'b0, sw_deb[14], sw_deb[11:7], boss_max_hp, player_lives, hard_mode, sw_rise};
 endmodule
